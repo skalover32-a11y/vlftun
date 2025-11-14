@@ -3,7 +3,6 @@
     "level": "warn",
     "timestamp": true
   },
-
   "dns": {
     "servers": [
       {
@@ -20,17 +19,14 @@
       }
     ]
   },
-
   "inbounds": [
     {
       "type": "tun",
       "tag": "tun-in",
-      "tun": {
-        "interface_name": "vlftun_default",
-        "auto_route": true,
-        "strict_route": true,
-        "stack": "system"
-      }
+      "interface_name": "vlftun_default",
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "system"
     },
     {
       "type": "mixed",
@@ -39,7 +35,6 @@
       "listen_port": 7890
     }
   ],
-
   "outbounds": [
     {
       "type": "direct",
@@ -54,7 +49,6 @@
       "tag": "block"
     }
   ],
-
   "route": {
     "auto_detect_interface": true,
     "final": "proxy",
