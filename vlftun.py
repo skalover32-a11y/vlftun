@@ -249,25 +249,63 @@ def _patch_tun_alias(cfg_obj: dict, alias: str):
             ib["interface_name"] = alias
             return
 
-def _ensure_inbounds(cfg_obj: dict, profile: str):
-    inbounds = cfg_obj.setdefault("inbounds", [])
-    has_tun = any(isinstance(ib, dict) and ib.get("type") == "tun" for ib in inbounds)
-    has_mixed = any(isinstance(ib, dict) and ib.get("type") == "mixed" for ib in inbounds)
+def _patch_tun_alias(cfg_obj: dict, alias: str):
+    """Просто ставим alias интерфейса для TUN-инбаунда (без legacy-поля tun)."""
+    for ib in cfg_obj.get("inbounds", []) or []:
+        if isinstance(ib, dict) and ib.get("type") == "tun":
+            ib["interface_name"] = alias
+            return
 
-    if not has_tun:
-        inbounds.insert(0, {
+
+def _ensure_inbounds(cfg_obj: dict, profile: str):
+    """
+    Обеспечиваем наличие:
+      - TUN-инбаунда в новом формате sing-box (без вложенного поля "tun",
+        с address=["172.19.0.1/30"])
+      - mixed-инбаунда 127.0.0.1:7890
+    """
+    inbounds = cfg_obj.setdefault("inbounds", [])
+
+    # --- TUN inbound ---
+    tun = None
+    for ib in inbounds:
+        if isinstance(ib, dict) and ib.get("type") == "tun":
+            tun = ib
+            break
+
+    # если tun нет — создаём
+    if tun is None:
+        tun = {
             "type": "tun",
             "tag": "tun-in",
-            "tun": {
-                "interface_name": f"lf_tun_{profile}",
-                "stack": "system",
-                "auto_route": True,
-                "strict_route": True
-            }
-        })
-    else:
-        _patch_tun_alias(cfg_obj, f"lf_tun_{profile}")
+        }
+        inbounds.insert(0, tun)
 
+    # миграция со старого формата: переносим поля из вложенного "tun" наверх
+    legacy_tun = tun.pop("tun", None)
+    if isinstance(legacy_tun, dict):
+        for k, v in legacy_tun.items():
+            tun.setdefault(k, v)
+
+    # уникальное имя интерфейса под профиль
+    tun.setdefault("interface_name", f"lf_tun_{profile}")
+
+    # адрес в новом формате: address: ["172.19.0.1/30"]
+    if "address" not in tun:
+        addr = None
+        if isinstance(legacy_tun, dict):
+            addr = legacy_tun.get("inet4_address") or legacy_tun.get("inet6_address")
+        if not addr:
+            addr = tun.pop("inet4_address", None) or tun.pop("inet6_address", None)
+        tun["address"] = [addr or "172.19.0.1/30"]
+
+    # дефолтные параметры
+    tun.setdefault("stack", "system")
+    tun.setdefault("auto_route", True)
+    tun.setdefault("strict_route", True)
+
+    # --- mixed inbound ---
+    has_mixed = any(isinstance(ib, dict) and ib.get("type") == "mixed" for ib in inbounds)
     if not has_mixed:
         inbounds.append({
             "type": "mixed",
