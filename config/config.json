@@ -24,6 +24,7 @@
       "type": "tun",
       "tag": "tun-in",
       "interface_name": "vlftun_default",
+      "inet4_address": "172.19.0.1/30",
       "auto_route": true,
       "strict_route": true,
       "stack": "system"
@@ -36,18 +37,9 @@
     }
   ],
   "outbounds": [
-    {
-      "type": "direct",
-      "tag": "proxy"
-    },
-    {
-      "type": "direct",
-      "tag": "direct"
-    },
-    {
-      "type": "block",
-      "tag": "block"
-    }
+    { "type": "direct", "tag": "proxy" },
+    { "type": "direct", "tag": "direct" },
+    { "type": "block", "tag": "block" }
   ],
   "route": {
     "auto_detect_interface": true,
