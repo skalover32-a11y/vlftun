@@ -7,8 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Checkout repo
@@ -18,16 +21,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if (Test-Path "requirements.txt") { pip install -r requirements.txt }
           pip install pyinstaller
 
       - name: Build vlftun.exe
         run: pyinstaller vlftun.py --name vlftun --onefile --noconsole --icon=vlf.ico --add-data "assets;assets" --add-data "config;config" --add-data "_internal;_internal"
-
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
