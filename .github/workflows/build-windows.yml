@@ -26,7 +26,7 @@ jobs:
           pip install pyinstaller
 
       - name: Build vlftun.exe
-        run: pyinstaller vlftun.py --name vlftun --onefile --noconsole --icon=LF.ico --add-data "assets;assets" --add-data "config;config" --add-data "_internal;_internal"
+        run: pyinstaller vlftun.py --name vlftun --onefile --noconsole --icon=vlf.ico --add-data "assets;assets" --add-data "config;config" --add-data "_internal;_internal"
 
 
       - name: Upload artifact
