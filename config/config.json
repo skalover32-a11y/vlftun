@@ -1,0 +1,63 @@
+{
+  "log": {
+    "level": "warn",
+    "timestamp": true
+  },
+
+  "dns": {
+    "servers": [
+      {
+        "address": "https://1.1.1.1/dns-query",
+        "strategy": "prefer_ipv4"
+      },
+      {
+        "address": "1.1.1.1",
+        "strategy": "prefer_ipv4"
+      },
+      {
+        "address": "8.8.8.8",
+        "strategy": "prefer_ipv4"
+      }
+    ]
+  },
+
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "tun": {
+        "interface_name": "vlftun_default",
+        "auto_route": true,
+        "strict_route": true,
+        "stack": "system"
+      }
+    },
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 7890
+    }
+  ],
+
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "proxy"
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+
+  "route": {
+    "auto_detect_interface": true,
+    "final": "proxy",
+    "rules": []
+  }
+}

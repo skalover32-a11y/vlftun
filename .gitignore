@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.spec
+
+# Виртуальное окружение
+venv/
+.env
+
+# PyInstaller
+build/
+dist/
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.bak
+
+# Рабочие данные клиента (профили, конфиги пользователей)
+_profiles/
